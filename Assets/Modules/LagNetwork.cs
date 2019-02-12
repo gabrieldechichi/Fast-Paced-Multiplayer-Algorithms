@@ -6,7 +6,7 @@ using System;
 public class LagNetwork : MonoBehaviour, INetwork
 {
     [SerializeField] int lagMs;
-    Dictionary<string, ConnectionDelayer> connectionDelayers = new Dictionary<string, ConnectionDelayer>();
+    Dictionary<string, NetworkChannel> networkChannels = new Dictionary<string, NetworkChannel>();
     Dictionary<string, IServer> servers = new Dictionary<string, IServer>();
 
     public void Listen(string address, IServer server)
@@ -14,43 +14,47 @@ public class LagNetwork : MonoBehaviour, INetwork
         servers.Add(address, server);
     }
 
-    public void Connect(string address, Action<bool, EntitySetupData, Connection> onConnected)
+    public void Connect(string clientAddress, string serverAddress, Action<bool, EntityState, Connection> onConnected)
     {
-        if (!servers.ContainsKey(address))
+        if (!servers.ContainsKey(serverAddress))
         {
-            onConnected(false, EntitySetupData.Empty, null);
+            onConnected(false, null, null);
             return;
         }
-        var server = servers[address];
-        server.Connect((s, setupData, conn) =>
+        var server = servers[serverAddress];
+        var serverConn = new Connection(serverAddress, clientAddress);
+        server.Connect(serverConn, (s, setupData) =>
         {
             if (s)
             {
-                connectionDelayers.Add(conn.Id, new ConnectionDelayer(conn));
+                networkChannels.Add(clientAddress, new NetworkChannel());
+                networkChannels.Add(serverAddress, new NetworkChannel());
             }
-            if (onConnected != null) { onConnected(s, setupData, conn); }
+
+            var clientConn = new Connection(clientAddress, serverAddress);
+            if (onConnected != null) { onConnected(s, setupData, clientConn); }
         });
     }
 
-    public void Send(string connectionId, Message[] msgs)
+    public void Send(string toId, Message[] msgs)
     {
-        if (!connectionDelayers.ContainsKey(connectionId)) { return; }
-        var conn = connectionDelayers[connectionId];
-        conn.pendingMessages.AddRange(msgs.Select(m => new DelayedMessage(GetReceiveTime(), m)));
+        if (!networkChannels.ContainsKey(toId)) { return; }
+        var channel = networkChannels[toId];
+        channel.Messages.AddRange(msgs.Select(m => new DelayedMessage(GetReceiveTime(), m)));
     }
 
-    public Message[] Receive(string connectionId)
+    public Message[] Receive(string fromId)
     {
-        if (!connectionDelayers.ContainsKey(connectionId)) { return new Message[0]; }
-        var conn = connectionDelayers[connectionId];
+        if (!networkChannels.ContainsKey(fromId)) { return new Message[0]; }
+        var channel = networkChannels[fromId];
 
         //TODO: Temporal bug here
-        var msgsReceived = conn.pendingMessages
+        var msgsReceived = channel.Messages
             .Where(ShouldBeDelivered)
             .Select(d => d.Msg)
             .ToArray();
 
-        conn.pendingMessages.RemoveAll(ShouldBeDelivered);
+        channel.Messages.RemoveAll(ShouldBeDelivered);
 
         return msgsReceived;
     }
@@ -65,15 +69,9 @@ public class LagNetwork : MonoBehaviour, INetwork
         return msg.ReceiveTime <= DateTime.UtcNow;
     }
 
-    public class ConnectionDelayer
+    public class NetworkChannel
     {
-        public Connection connection;
-        public List<DelayedMessage> pendingMessages = new List<DelayedMessage>();
-
-        public ConnectionDelayer(Connection conn)
-        {
-            connection = conn;
-        }
+        public List<DelayedMessage> Messages = new List<DelayedMessage>();
     }
 
     public class DelayedMessage

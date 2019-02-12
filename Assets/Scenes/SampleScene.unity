@@ -822,7 +822,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2406651906e862948a3622c30a179806, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  entityPrefab: {fileID: 114072918738217666, guid: 1608709f294f7864c8e474eefe8e7329,
+  entityPrefab: {fileID: 114072918738217666, guid: 0e2c8e9d64a688f4099f7972c45588eb,
     type: 2}
 --- !u!114 &1430028542
 MonoBehaviour:

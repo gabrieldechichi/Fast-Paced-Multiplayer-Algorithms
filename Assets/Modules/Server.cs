@@ -18,6 +18,7 @@ public class Server : MonoBehaviour, IServer
     private void Update()
     {
         ProcessClientMessages();
+        SendWorldState();
     }
 
     void ProcessClientMessages()
@@ -27,7 +28,7 @@ public class Server : MonoBehaviour, IServer
             var conn = connections[entityId];
             var entity = entities[entityId];
 
-            var msgs = network.Receive(conn.Id);
+            var msgs = network.Receive(conn.SourceId);
             for (int i = 0; i < msgs.Length; i++)
             {
                 entity.ProcessMessage(msgs[i]);
@@ -37,17 +38,27 @@ public class Server : MonoBehaviour, IServer
 
     void SendWorldState()
     {
+        var worldStateMessages = new Message[entities.Count];
+        int count = 0;
+        foreach (var entity in entities.Values)
+        {
+            worldStateMessages[count++] = new Message(0, entity.Id, entity.BuildCurrentState());
+        }
 
+        foreach (var entityId in connections.Keys)
+        {
+            var conn = connections[entityId];
+            network.Send(conn.DestinationId, worldStateMessages);
+        }
     }
 
-    public void Connect(Action<bool, EntitySetupData, Connection> onConnected)
+    public void Connect(Connection conn, Action<bool, EntityState> onConnected)
     {
         var entity = serverSpace.InstantiateEntity(connections.Count.ToString());
         entities.Add(entity.Id, entity);
 
-        var conn = new Connection();
         connections.Add(entity.Id, conn);
 
-        onConnected(true, entity.GetSetupData(), conn);
+        onConnected(true, entity.BuildCurrentState());
     }
 }

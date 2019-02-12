@@ -14,7 +14,7 @@ public class Client : MonoBehaviour
 
     private void Start()
     {
-        network.Connect(Constants.ServerAddress, (s, setupData, conn) =>
+        network.Connect(GetInstanceID().ToString(), Constants.ServerAddress, (s, setupData, conn) =>
         {
             if (s)
             {
@@ -29,23 +29,24 @@ public class Client : MonoBehaviour
 
     private void Update()
     {
-        //ProcessServerMessages();
+        ProcessServerMessages();
     }
 
-    //void ProcessServerMessages()
-    //{
-    //    var msgs = network.Receive(connection.Id);
-    //    for (int i = 0; i < msgs.Length; i++)
-    //    {
-    //        var msg = msgs[i];
-    //        var entity = entities[msg.EntityId];
-    //        entity.ProcessMessage(msg);
-    //    }
-    //}
+    void ProcessServerMessages()
+    {
+        var msgs = network.Receive(connection.SourceId);
+        
+        for (int i = 0; i < msgs.Length; i++)
+        {
+            var msg = msgs[i];
+            var entity = entities[msg.EntityId];
+            entity.ProcessMessage(msg);
+        }
+    }
 
     public void Send(object payload)
     {
-        network.Send(connection.Id, new Message[] { NewInputMessage(payload) });
+        network.Send(connection.DestinationId, new Message[] { NewInputMessage(payload) });
     }
 
     Message NewInputMessage(object payload)

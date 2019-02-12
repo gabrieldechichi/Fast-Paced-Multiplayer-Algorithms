@@ -6,7 +6,7 @@ public interface IEntity
 {
     string Id { get; }
     void ProcessMessage(Message msg);
-    EntitySetupData GetSetupData();
+    EntityState BuildCurrentState();
 }
 
 public class Entity : MonoBehaviour, IEntity
@@ -32,11 +32,17 @@ public class Entity : MonoBehaviour, IEntity
         {
             transform.position += new Vector3(inputMessage.delta.x, inputMessage.delta.y, 0);
         }
+
+        var stateMessage = msg.GetPayload<EntityState>();
+        if (stateMessage != null)
+        {
+            transform.position = stateMessage.Position;
+        }
     }
 
-    public EntitySetupData GetSetupData()
+    public EntityState BuildCurrentState()
     {
-        return new EntitySetupData { EntityId = Id, Position = transform.position };
+        return new EntityState { EntityId = Id, Position = transform.position };
     }
 
     public void Move(Vector2 delta)

@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 114072918738217666}
   - component: {fileID: 114273264423831594}
   m_Layer: 5
-  m_Name: Entity
+  m_Name: ServerEntity
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -41,7 +41,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 714d5414c68183b49b2e8e7079f687c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  position: {x: 0, y: 0}
   speed: 0
   positionBuffer: []
 --- !u!114 &114273264423831594
@@ -68,7 +67,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.9716981, g: 0, b: 0.01649543, a: 1}
+  m_Color: {r: 0.9716981, g: 0, b: 0.01649543, a: 0.4117647}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
