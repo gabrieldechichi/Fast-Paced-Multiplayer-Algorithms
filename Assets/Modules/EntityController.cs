@@ -13,7 +13,7 @@ public class EntityController : MonoBehaviour {
     private void Update()
     {
         Vector2 input = new Vector2(
-            Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+            Input.GetAxisRaw("Horizontal"), 0);
 
         Entity.Move(input*speed*Time.deltaTime);
     }

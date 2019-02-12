@@ -19,6 +19,12 @@ public class Entity : MonoBehaviour, IEntity
 
     public string Id { get { return id; } }
 
+    public void Setup(string id, Client client)
+    {
+        this.id = id;
+        this.client = client;
+    }
+
     public void ProcessMessage(Message msg)
     {
         var inputMessage = msg.GetPayload<InputMessage>();
@@ -31,14 +37,6 @@ public class Entity : MonoBehaviour, IEntity
     public void Move(Vector2 delta)
     {
         client.Send(new InputMessage(delta));
-    }
-
-    public static IEntity NewEntity(Entity prefab, int number)
-    {
-        var entity = GameObject.Instantiate(prefab).GetComponent<Entity>();
-        entity.id = number.ToString();
-        entity.client = FindObjectOfType<Client>();
-        return entity;
     }
 }
 
