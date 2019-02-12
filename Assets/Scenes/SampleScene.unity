@@ -262,7 +262,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39ae2ec14aac4d3428d19380b87ceb74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lagMs: 0
+  lagMs: 100
 --- !u!1 &534669902
 GameObject:
   m_ObjectHideFlags: 0
@@ -350,7 +350,7 @@ GameObject:
   - component: {fileID: 839041370}
   - component: {fileID: 839041371}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Server
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -381,3 +381,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   network: {fileID: 403196580}
+  entityPrefab: {fileID: 114382863685899232, guid: 1608709f294f7864c8e474eefe8e7329,
+    type: 2}

@@ -11,6 +11,8 @@ public interface IEntity
 public class Entity : MonoBehaviour, IEntity
 {
     string id;
+    Client client;
+
     public Vector2 position;
     public float speed;
     public Vector2[] positionBuffer;
@@ -19,17 +21,33 @@ public class Entity : MonoBehaviour, IEntity
 
     public void ProcessMessage(Message msg)
     {
-        var inputMessage = msg as InputMessage;
+        var inputMessage = msg.GetPayload<InputMessage>();
         if (inputMessage != null)
         {
-            Debug.Log(inputMessage.log);
+            transform.position += new Vector3(inputMessage.delta.x, inputMessage.delta.y, 0);
         }
     }
 
-    public static IEntity NewEntity(int number)
+    public void Move(Vector2 delta)
     {
-        var entity = new GameObject("Entity " + number).AddComponent<Entity>();
+        client.Send(new InputMessage(delta));
+    }
+
+    public static IEntity NewEntity(Entity prefab, int number)
+    {
+        var entity = GameObject.Instantiate(prefab).GetComponent<Entity>();
         entity.id = number.ToString();
+        entity.client = FindObjectOfType<Client>();
         return entity;
+    }
+}
+
+public class InputMessage
+{
+    public Vector2 delta;
+
+    public InputMessage(Vector2 delta)
+    {
+        this.delta = delta;
     }
 }

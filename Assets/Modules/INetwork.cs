@@ -30,18 +30,19 @@ public class Connection
 
 public class Message
 {
-    int SequenceNumber;
-    string EntityId;
+    public int SequenceNumber;
+    public string EntityId;
+    object payload;
 
-    public Message(int sequenceNumber, string entityId)
+    public T GetPayload<T>() where T : class
+    {
+        return payload as T;
+    }
+    
+    public Message(int sequenceNumber, string entityId, object payload)
     {
         SequenceNumber = sequenceNumber;
         EntityId = entityId;
-    }
-
-    public Message(Message other)
-    {
-        SequenceNumber = other.SequenceNumber;
-        EntityId = other.EntityId;
+        this.payload = payload;
     }
 }
