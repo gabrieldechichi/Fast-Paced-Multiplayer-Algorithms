@@ -14,21 +14,21 @@ public class LagNetwork : MonoBehaviour, INetwork
         servers.Add(address, server);
     }
 
-    public void Connect(string address, Action<bool, Connection> onConnected)
+    public void Connect(string address, Action<bool, EntitySetupData, Connection> onConnected)
     {
         if (!servers.ContainsKey(address))
         {
-            onConnected(false, null);
+            onConnected(false, EntitySetupData.Empty, null);
             return;
         }
         var server = servers[address];
-        server.Connect((s, conn) =>
+        server.Connect((s, setupData, conn) =>
         {
             if (s)
             {
                 connectionDelayers.Add(conn.Id, new ConnectionDelayer(conn));
             }
-            if (onConnected != null) { onConnected(s, conn); }
+            if (onConnected != null) { onConnected(s, setupData, conn); }
         });
     }
 

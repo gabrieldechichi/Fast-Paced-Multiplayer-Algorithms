@@ -6,26 +6,32 @@ using System.Linq;
 public interface INetwork
 {
     void Listen(string address, IServer server);
-    void Connect(string address, Action<bool, Connection> onConnected);
+    void Connect(string address, Action<bool, EntitySetupData, Connection> onConnected);
     void Send(string connectionId, Message[] msgs);
     Message[] Receive(string connectionId);
 }
 
 public interface IServer
 {
-    void Connect(Action<bool, Connection> onConnected);
+    void Connect(Action<bool, EntitySetupData, Connection> onConnected);
 }
 
 public class Connection
 {
     public string Id;
-    public string EntityId;
 
-    public Connection(string entityId)
+    public Connection()
     {
         Id = Guid.NewGuid().ToString();
-        EntityId = entityId;
     }
+}
+
+public struct EntitySetupData
+{
+    public string EntityId;
+    public Vector2 Position;
+
+    public static EntitySetupData Empty { get { return new EntitySetupData(); } }
 }
 
 public class Message

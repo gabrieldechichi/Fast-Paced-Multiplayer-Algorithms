@@ -12,10 +12,10 @@ public class WorldSpace : MonoBehaviour {
     Client client;
     Client Client { get { return client ?? (client = FindObjectOfType<Client>()); } }
 
-	public IEntity InstantiateEntity(int number)
+	public IEntity InstantiateEntity(string id)
     {
         var entity = Instantiate(entityPrefab).GetComponent<Entity>();
-        entity.Setup(number.ToString(), Client);
+        entity.Setup(id, Client);
         entity.transform.SetParent(Rect, false);
         entity.transform.localPosition = Vector2.zero;
         return entity;

@@ -6,6 +6,7 @@ public interface IEntity
 {
     string Id { get; }
     void ProcessMessage(Message msg);
+    EntitySetupData GetSetupData();
 }
 
 public class Entity : MonoBehaviour, IEntity
@@ -13,7 +14,6 @@ public class Entity : MonoBehaviour, IEntity
     string id;
     Client client;
 
-    public Vector2 position;
     public float speed;
     public Vector2[] positionBuffer;
 
@@ -32,6 +32,11 @@ public class Entity : MonoBehaviour, IEntity
         {
             transform.position += new Vector3(inputMessage.delta.x, inputMessage.delta.y, 0);
         }
+    }
+
+    public EntitySetupData GetSetupData()
+    {
+        return new EntitySetupData { EntityId = Id, Position = transform.position };
     }
 
     public void Move(Vector2 delta)

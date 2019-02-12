@@ -7,7 +7,7 @@ public class Server : MonoBehaviour, IServer
     [SerializeField] LagNetwork network;
     [SerializeField] WorldSpace serverSpace;
 
-    List<Connection> connections = new List<Connection>();
+    Dictionary<string, Connection> connections = new Dictionary<string, Connection>();
     Dictionary<string, IEntity> entities = new Dictionary<string, IEntity>();
 
     private void Awake()
@@ -22,14 +22,15 @@ public class Server : MonoBehaviour, IServer
 
     void ProcessClientMessages()
     {
-        for (int i = 0; i < connections.Count; i++)
+        foreach (var entityId in connections.Keys)
         {
-            var msgs = network.Receive(connections[i].Id);
-            var entity = entities[connections[i].EntityId];
-            
-            for (int j = 0; j < msgs.Length; j++)
+            var conn = connections[entityId];
+            var entity = entities[entityId];
+
+            var msgs = network.Receive(conn.Id);
+            for (int i = 0; i < msgs.Length; i++)
             {
-                entity.ProcessMessage(msgs[j]);
+                entity.ProcessMessage(msgs[i]);
             }
         }
     }
@@ -39,13 +40,14 @@ public class Server : MonoBehaviour, IServer
 
     }
 
-    public void Connect(Action<bool, Connection> onConnected)
+    public void Connect(Action<bool, EntitySetupData, Connection> onConnected)
     {
-        var entity = serverSpace.InstantiateEntity(connections.Count);
+        var entity = serverSpace.InstantiateEntity(connections.Count.ToString());
         entities.Add(entity.Id, entity);
 
-        var conn = new Connection(entity.Id);
-        connections.Add(conn);
-        onConnected(true, conn);
+        var conn = new Connection();
+        connections.Add(entity.Id, conn);
+
+        onConnected(true, entity.GetSetupData(), conn);
     }
 }

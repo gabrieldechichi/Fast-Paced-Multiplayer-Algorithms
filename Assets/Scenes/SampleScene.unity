@@ -143,6 +143,7 @@ MonoBehaviour:
   options:
     useClientPrediction: 0
   network: {fileID: 403196580}
+  clientSpace: {fileID: 1430028541}
 --- !u!4 &76716604
 Transform:
   m_ObjectHideFlags: 0
