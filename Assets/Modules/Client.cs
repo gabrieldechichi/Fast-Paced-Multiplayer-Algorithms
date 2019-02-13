@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class Client : MonoBehaviour
@@ -11,6 +12,8 @@ public class Client : MonoBehaviour
     IEntity thisEntity;
     Connection connection;
     int sequenceNumber;
+
+    private delegate bool MessageFilter(IEntity entity, Message msg);
 
     private void Start()
     {
@@ -35,26 +38,51 @@ public class Client : MonoBehaviour
     void ProcessServerMessages()
     {
         var msgs = network.Receive(connection.SourceId);
-        
+        ProcessMessagesWithFilter(msgs, (entity, msg) =>
+        {
+            var overrideLocalEntityPosition = !options.useClientPrediction;
+            return entity.Id != thisEntity.Id || overrideLocalEntityPosition;
+        });
+    }
+
+    void ProcessLocalMessages(Message[] msgs)
+    {
+        ProcessMessagesWithFilter(msgs, (entity, msg) =>
+        {
+            return entity.Id == thisEntity.Id;
+        });
+    }
+
+    void ProcessMessagesWithFilter(Message[] msgs, MessageFilter filter)
+    {
         for (int i = 0; i < msgs.Length; i++)
         {
             var msg = msgs[i];
             var entity = entities[msg.EntityId];
-            entity.ProcessMessage(msg);
+            if (filter(entity, msg))
+            {
+                entity.ProcessMessage(msg);
+            }
         }
     }
 
     public void Send(object payload)
     {
-        network.Send(connection.DestinationId, new Message[] { NewInputMessage(payload) });
+        var msgs = new Message[] { NewClientMessage(payload) };
+        network.Send(connection.DestinationId, msgs);
+
+        if (options.useClientPrediction)
+        {
+            ProcessLocalMessages(msgs);
+        }
     }
 
-    Message NewInputMessage(object payload)
+    Message NewClientMessage(object payload)
     {
         return new Message(sequenceNumber++, thisEntity.Id, payload);
     }
 
-    [System.Serializable]
+    [Serializable]
     struct ClientOptions
     {
         public bool useClientPrediction;

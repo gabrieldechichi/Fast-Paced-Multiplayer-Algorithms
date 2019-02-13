@@ -36,7 +36,7 @@ public class Server : MonoBehaviour, IServer
         }
     }
 
-    void SendWorldState()
+    void SendWorldState ()
     {
         var worldStateMessages = new Message[entities.Count];
         int count = 0;
