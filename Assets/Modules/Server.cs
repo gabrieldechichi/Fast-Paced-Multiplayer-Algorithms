@@ -18,7 +18,7 @@ public class Server : MonoBehaviour, IServer
         network.Listen(Constants.ServerAddress, this);
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         if (Time.time > nextUpdateTime)
         {
@@ -43,18 +43,18 @@ public class Server : MonoBehaviour, IServer
             var msgs = network.Receive(conn.SourceId);
             for (int i = 0; i < msgs.Length; i++)
             {
-                entityData. ProcessMessage(msgs[i]);
+                entityData.ProcessMessage(msgs[i]);
             }
         }
     }
 
-    void SendWorldState ()
+    void SendWorldState()
     {
         var worldStateMessages = new Message[entities.Count];
         int count = 0;
         foreach (var serverEntity in entities.Values)
         {
-            worldStateMessages[count++] = new Message(serverEntity.LastInputSequenceNumber, serverEntity.Entity.Id, serverEntity.Entity.BuildCurrentState());
+            worldStateMessages[count++] = new Message(serverEntity.LastProcessedSequenceNumber, serverEntity.Entity.Id, serverEntity.Entity.BuildCurrentState());
         }
 
         foreach (var entityId in connections.Keys)
@@ -81,7 +81,7 @@ class ServerEntity
     int lastInputSequenceNumber = -1;
 
     public IEntity Entity { get { return entity; } }
-    public int LastInputSequenceNumber { get { return lastInputSequenceNumber; } }
+    public int LastProcessedSequenceNumber { get { return lastInputSequenceNumber; } }
 
     public ServerEntity(IEntity entity)
     {

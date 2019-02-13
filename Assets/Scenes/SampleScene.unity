@@ -141,8 +141,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   options:
-    useClientPrediction: 0
-    useReconciliation: 0
+    useClientPrediction: 1
+    useReconciliation: 1
   network: {fileID: 403196580}
   clientSpace: {fileID: 1689978523}
 --- !u!4 &76716604
@@ -711,6 +711,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 223ccec27546ef246bb4d8935f416975, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  updatesPerSecond: 5
   network: {fileID: 403196580}
   serverSpace: {fileID: 315200559}
 --- !u!1 &1083241866

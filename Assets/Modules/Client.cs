@@ -32,7 +32,7 @@ public class Client : MonoBehaviour
         });
     }
 
-    private void Update()
+    private void LateUpdate()
     {
         ProcessServerMessages();
     }

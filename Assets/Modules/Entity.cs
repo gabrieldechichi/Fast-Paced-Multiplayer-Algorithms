@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
+using System.Linq;
 
 public interface IEntity
 {
@@ -13,7 +15,7 @@ public class Entity : MonoBehaviour, IEntity
     Client client;
 
     public float speed;
-    public Vector2[] positionBuffer;
+    public List<Message> unacknoledgedInputs = new List<Message>();
 
     public string Id { get { return id; } }
 
@@ -25,17 +27,40 @@ public class Entity : MonoBehaviour, IEntity
 
     public void ProcessMessage(Message msg)
     {
+        //This is local
         var inputMessage = msg.GetPayload<InputMessage>();
         if (inputMessage != null)
         {
-            transform.position += new Vector3(inputMessage.delta.x, inputMessage.delta.y, 0);
+            ProcessInputMessage(inputMessage);
+            unacknoledgedInputs.Add(msg);
         }
 
+        //this is server
         var stateMessage = msg.GetPayload<EntityState>();
         if (stateMessage != null)
         {
             transform.position = new Vector3(stateMessage.Position.x, stateMessage.Position.y, transform.position.z);
+
+            if (client.Options.useReconciliation)
+            {
+                var pendingUnacknoledgedInputs = unacknoledgedInputs.Where(m => m.SequenceNumber > msg.SequenceNumber);
+                foreach (var pendingInput in pendingUnacknoledgedInputs)
+                {
+                    ProcessInputMessage(pendingInput.GetPayload<InputMessage>());
+                }
+                unacknoledgedInputs.RemoveAll(m => m.SequenceNumber <= msg.SequenceNumber);
+            }
+            else
+            {
+                unacknoledgedInputs.Clear();
+            }
         }
+    }
+
+    //This is local
+    void ProcessInputMessage(InputMessage msg)
+    {
+        transform.position += new Vector3(msg.delta.x, msg.delta.y, 0);
     }
 
     public EntityState BuildCurrentState()
