@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System;
+using System.Linq;
 using UnityEngine;
 
 public class Client : MonoBehaviour
@@ -12,8 +13,6 @@ public class Client : MonoBehaviour
     IEntity thisEntity;
     Connection connection;
     int sequenceNumber;
-
-    private delegate bool MessageFilter(IEntity entity, Message msg);
 
     private void Start()
     {
@@ -37,32 +36,35 @@ public class Client : MonoBehaviour
 
     void ProcessServerMessages()
     {
-        var msgs = network.Receive(connection.SourceId);
-        ProcessMessagesWithFilter(msgs, (entity, msg) =>
-        {
-            var overrideLocalEntityPosition = !options.useClientPrediction;
-            return entity.Id != thisEntity.Id || overrideLocalEntityPosition;
-        });
+        var msgs = network.Receive(connection.SourceId)
+            .Where(ShouldProcessServerMessage)
+            .ToArray();
+
+        ProcessMessages(msgs);
+    }
+
+    bool ShouldProcessServerMessage(Message m)
+    {
+        return m.EntityId != thisEntity.Id || !options.useClientPrediction;
     }
 
     void ProcessLocalMessages(Message[] msgs)
     {
-        ProcessMessagesWithFilter(msgs, (entity, msg) =>
+        if (msgs.Any(m => m.EntityId != thisEntity.Id))
         {
-            return entity.Id == thisEntity.Id;
-        });
+            Debug.LogError("Process local message called for remote entity: This");
+            return;
+        }
+        ProcessMessages(msgs);
     }
 
-    void ProcessMessagesWithFilter(Message[] msgs, MessageFilter filter)
+    void ProcessMessages(Message[] msgs)
     {
         for (int i = 0; i < msgs.Length; i++)
         {
             var msg = msgs[i];
             var entity = entities[msg.EntityId];
-            if (filter(entity, msg))
-            {
-                entity.ProcessMessage(msg);
-            }
+            entity.ProcessMessage(msg);
         }
     }
 
