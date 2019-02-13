@@ -4,11 +4,14 @@ using UnityEngine;
 
 public class Server : MonoBehaviour, IServer
 {
+    [SerializeField] float updatesPerSecond = 5;
     [SerializeField] LagNetwork network;
     [SerializeField] WorldSpace serverSpace;
 
     Dictionary<string, Connection> connections = new Dictionary<string, Connection>();
-    Dictionary<string, IEntity> entities = new Dictionary<string, IEntity>();
+    Dictionary<string, ServerEntity> entities = new Dictionary<string, ServerEntity>();
+
+    float nextUpdateTime;
 
     private void Awake()
     {
@@ -16,6 +19,15 @@ public class Server : MonoBehaviour, IServer
     }
 
     private void Update()
+    {
+        if (Time.time > nextUpdateTime)
+        {
+            nextUpdateTime = Time.time + 1 / updatesPerSecond;
+            UpdateServer();
+        }
+    }
+
+    void UpdateServer()
     {
         ProcessClientMessages();
         SendWorldState();
@@ -26,12 +38,12 @@ public class Server : MonoBehaviour, IServer
         foreach (var entityId in connections.Keys)
         {
             var conn = connections[entityId];
-            var entity = entities[entityId];
+            var entityData = entities[entityId];
 
             var msgs = network.Receive(conn.SourceId);
             for (int i = 0; i < msgs.Length; i++)
             {
-                entity.ProcessMessage(msgs[i]);
+                entityData. ProcessMessage(msgs[i]);
             }
         }
     }
@@ -40,9 +52,9 @@ public class Server : MonoBehaviour, IServer
     {
         var worldStateMessages = new Message[entities.Count];
         int count = 0;
-        foreach (var entity in entities.Values)
+        foreach (var serverEntity in entities.Values)
         {
-            worldStateMessages[count++] = new Message(0, entity.Id, entity.BuildCurrentState());
+            worldStateMessages[count++] = new Message(serverEntity.LastInputSequenceNumber, serverEntity.Entity.Id, serverEntity.Entity.BuildCurrentState());
         }
 
         foreach (var entityId in connections.Keys)
@@ -55,10 +67,30 @@ public class Server : MonoBehaviour, IServer
     public void Connect(Connection conn, Action<bool, EntityState> onConnected)
     {
         var entity = serverSpace.InstantiateEntity(connections.Count.ToString());
-        entities.Add(entity.Id, entity);
+        entities.Add(entity.Id, new ServerEntity(entity));
 
         connections.Add(entity.Id, conn);
 
         onConnected(true, entity.BuildCurrentState());
+    }
+}
+
+class ServerEntity
+{
+    IEntity entity;
+    int lastInputSequenceNumber = -1;
+
+    public IEntity Entity { get { return entity; } }
+    public int LastInputSequenceNumber { get { return lastInputSequenceNumber; } }
+
+    public ServerEntity(IEntity entity)
+    {
+        this.entity = entity;
+    }
+
+    public void ProcessMessage(Message msg)
+    {
+        lastInputSequenceNumber = msg.SequenceNumber;
+        entity.ProcessMessage(msg);
     }
 }

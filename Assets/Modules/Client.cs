@@ -14,6 +14,9 @@ public class Client : MonoBehaviour
     Connection connection;
     int sequenceNumber;
 
+    public ClientOptions Options { get { return options; } }
+    public string LocalEntityId { get { return thisEntity.Id; } }
+
     private void Start()
     {
         network.Connect(GetInstanceID().ToString(), Constants.ServerAddress, (s, setupData, conn) =>
@@ -34,18 +37,22 @@ public class Client : MonoBehaviour
         ProcessServerMessages();
     }
 
-    void ProcessServerMessages()
+    private void OnValidate()
     {
-        var msgs = network.Receive(connection.SourceId)
-            .Where(ShouldProcessServerMessage)
-            .ToArray();
-
-        ProcessMessages(msgs);
+        //TODO: Move this to editor script?
+        if (options.useClientPrediction && options.useReconciliation)
+        {
+            options.useReconciliation = true;
+        }
+        else if (options.useReconciliation && !options.useClientPrediction)
+        {
+            options.useClientPrediction = true;
+        }
     }
 
-    bool ShouldProcessServerMessage(Message m)
+    void ProcessServerMessages()
     {
-        return m.EntityId != thisEntity.Id || !options.useClientPrediction;
+        ProcessMessages(network.Receive(connection.SourceId));
     }
 
     void ProcessLocalMessages(Message[] msgs)
@@ -85,9 +92,10 @@ public class Client : MonoBehaviour
     }
 
     [Serializable]
-    struct ClientOptions
+    public struct ClientOptions
     {
         public bool useClientPrediction;
+        public bool useReconciliation;
     }
 }
 
