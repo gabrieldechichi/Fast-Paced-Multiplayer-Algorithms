@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public interface IEntity
 {
@@ -36,7 +34,7 @@ public class Entity : MonoBehaviour, IEntity
         var stateMessage = msg.GetPayload<EntityState>();
         if (stateMessage != null)
         {
-            transform.position = stateMessage.Position;
+            transform.position = new Vector3(stateMessage.Position.x, stateMessage.Position.y, transform.position.z);
         }
     }
 
