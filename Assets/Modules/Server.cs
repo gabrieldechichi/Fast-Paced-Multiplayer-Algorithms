@@ -35,15 +35,13 @@ public class Server : MonoBehaviour, IServer
 
     void ProcessClientMessages()
     {
-        foreach (var entityId in connections.Keys)
+        foreach (var conn in connections.Values)
         {
-            var conn = connections[entityId];
-            var entityData = entities[entityId];
-
             var msgs = network.Receive(conn.SourceId);
-            for (int i = 0; i < msgs.Length; i++)
+            foreach (var msg in msgs)
             {
-                entityData.ProcessMessage(msgs[i]);
+                var entityData = entities[msg.EntityId];
+                entityData.ProcessMessage(msg);
             }
         }
     }
