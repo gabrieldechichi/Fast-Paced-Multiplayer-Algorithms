@@ -17,16 +17,16 @@ public class Client : MonoBehaviour
     public ClientOptions Options { get { return options; } }
     public string LocalEntityId { get { return thisEntity.Id; } }
 
+    #region Monobehaviour
     private void Start()
     {
-        network.Connect(GetInstanceID().ToString(), Constants.ServerAddress, (s, setupData, conn) =>
+        network.Connect(GetInstanceID().ToString(), Constants.ServerAddress, (s, entityState, conn) =>
         {
             if (s)
             {
                 connection = conn;
                 sequenceNumber = 0;
-                thisEntity = clientSpace.InstantiateEntity(setupData.EntityId);
-                entities.Add(thisEntity.Id, thisEntity);
+                thisEntity = NewEntity(entityState.EntityId, true);
             }
             Debug.Log("Connection result: " + s);
         });
@@ -49,6 +49,7 @@ public class Client : MonoBehaviour
             options.useClientPrediction = true;
         }
     }
+    #endregion
 
     void ProcessServerMessages()
     {
@@ -70,9 +71,22 @@ public class Client : MonoBehaviour
         for (int i = 0; i < msgs.Length; i++)
         {
             var msg = msgs[i];
-            var entity = entities[msg.EntityId];
+            var entity = GetOrCreateEntity(msg.EntityId);
             entity.ProcessMessage(msg);
         }
+    }
+
+    IEntity GetOrCreateEntity(string entityId)
+    {
+        if (entities.ContainsKey(entityId)) { return entities[entityId]; }
+        return NewEntity(entityId, false);
+    }
+
+    IEntity NewEntity(string entityId, bool isLocal)
+    {
+        var entity = clientSpace.InstantiateEntity(entityId, isLocal);
+        entities.Add(entity.Id, entity);
+        return entity;
     }
 
     public void Send(object payload)

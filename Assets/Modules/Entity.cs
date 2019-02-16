@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine.UI;
 
 public interface IEntity
 {
@@ -11,6 +12,7 @@ public interface IEntity
 
 public class Entity : MonoBehaviour, IEntity
 {
+    [SerializeField] Image image;
     string id;
     Client client;
 
@@ -19,10 +21,11 @@ public class Entity : MonoBehaviour, IEntity
 
     public string Id { get { return id; } }
 
-    public void Setup(string id, Client client)
+    public void Setup(string id, Client client, Color color)
     {
         this.id = id;
         this.client = client;
+        image.color = color;
     }
 
     public void ProcessMessage(Message msg)

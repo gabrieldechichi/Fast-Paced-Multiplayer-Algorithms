@@ -66,7 +66,7 @@ public class Server : MonoBehaviour, IServer
 
     public void Connect(Connection conn, Action<bool, EntityState> onConnected)
     {
-        var entity = serverSpace.InstantiateEntity(connections.Count.ToString());
+        var entity = serverSpace.InstantiateEntity(connections.Count.ToString(), false);
         entities.Add(entity.Id, new ServerEntity(entity));
 
         connections.Add(entity.Id, conn);

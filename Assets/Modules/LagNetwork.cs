@@ -27,13 +27,19 @@ public class LagNetwork : MonoBehaviour, INetwork
         {
             if (s)
             {
-                networkChannels.Add(clientAddress, new NetworkChannel());
-                networkChannels.Add(serverAddress, new NetworkChannel());
+                AddNetworkChannel(clientAddress);
+                AddNetworkChannel(serverAddress);
             }
 
             var clientConn = new Connection(clientAddress, serverAddress);
             if (onConnected != null) { onConnected(s, setupData, clientConn); }
         });
+    }
+
+    void AddNetworkChannel(string channelId)
+    {
+        if (networkChannels.ContainsKey(channelId)) { return; }
+        networkChannels.Add(channelId, new NetworkChannel());
     }
 
     public void Send(string toId, Message[] msgs)
@@ -48,7 +54,6 @@ public class LagNetwork : MonoBehaviour, INetwork
         if (!networkChannels.ContainsKey(fromId)) { return new Message[0]; }
         var channel = networkChannels[fromId];
 
-        //TODO: Temporal bug here
         var msgsReceived = channel.Messages
             .Where(ShouldBeDelivered)
             .Select(d => d.Msg)

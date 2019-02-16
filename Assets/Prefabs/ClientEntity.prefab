@@ -41,8 +41,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 714d5414c68183b49b2e8e7079f687c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  image: {fileID: 114823033175061732}
   speed: 0
-  positionBuffer: []
 --- !u!114 &114273264423831594
 MonoBehaviour:
   m_ObjectHideFlags: 1

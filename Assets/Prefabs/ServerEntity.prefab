@@ -22,7 +22,6 @@ GameObject:
   - component: {fileID: 222845493398995774}
   - component: {fileID: 114823033175061732}
   - component: {fileID: 114072918738217666}
-  - component: {fileID: 114273264423831594}
   m_Layer: 5
   m_Name: ServerEntity
   m_TagString: Untagged
@@ -41,20 +40,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 714d5414c68183b49b2e8e7079f687c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  image: {fileID: 114823033175061732}
   speed: 0
-  positionBuffer: []
---- !u!114 &114273264423831594
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1699586251211424}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6f0eb4e0b63504945adc2540ae5b885b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  speed: 50
 --- !u!114 &114823033175061732
 MonoBehaviour:
   m_ObjectHideFlags: 1
