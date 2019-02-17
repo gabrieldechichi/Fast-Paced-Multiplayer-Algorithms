@@ -8,6 +8,7 @@ This is a demo Unity project initially based on [this article][article-link] tha
 
 Future:
 - Lag compensation
-- 3D version
+- Package drop
+- Clock sync?
 
 [article-link]: http://www.gabrielgambetta.com/client-server-game-architecture.html

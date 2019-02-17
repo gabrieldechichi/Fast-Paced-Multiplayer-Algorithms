@@ -13,7 +13,7 @@ public class Server : MonoBehaviour, IServer
 
     float nextUpdateTime;
 
-    public float TimeStep { get { return 1f/updateRateSeconds; } }
+    public float TimeStep { get { return updateRateSeconds != 0 ? 1f/updateRateSeconds : 0; } }
 
     private void Awake()
     {
