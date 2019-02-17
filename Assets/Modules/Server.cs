@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Server : MonoBehaviour, IServer
 {
-    [SerializeField] float updatesPerSecond = 5;
+    [SerializeField] float updateRateSeconds = 5;
     [SerializeField] LagNetwork network;
     [SerializeField] WorldSpace serverSpace;
 
@@ -12,6 +12,8 @@ public class Server : MonoBehaviour, IServer
     Dictionary<string, ServerEntity> entities = new Dictionary<string, ServerEntity>();
 
     float nextUpdateTime;
+
+    public float TimeStep { get { return 1f/updateRateSeconds; } }
 
     private void Awake()
     {
@@ -22,7 +24,7 @@ public class Server : MonoBehaviour, IServer
     {
         if (Time.time > nextUpdateTime)
         {
-            nextUpdateTime = Time.time + 1 / updatesPerSecond;
+            nextUpdateTime = Time.time + TimeStep;
             UpdateServer();
         }
     }
@@ -35,6 +37,7 @@ public class Server : MonoBehaviour, IServer
 
     void ProcessClientMessages()
     {
+        //TODO: Consider updating entities in steps < timeStep 
         foreach (var conn in connections.Values)
         {
             var msgs = network.Receive(conn.SourceId);

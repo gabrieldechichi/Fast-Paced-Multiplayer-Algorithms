@@ -110,6 +110,7 @@ public class Client : MonoBehaviour
     {
         public bool useClientPrediction;
         public bool useReconciliation;
+        public bool useEntityInterpolation;
     }
 }
 

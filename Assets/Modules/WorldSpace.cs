@@ -5,6 +5,7 @@ public class WorldSpace : MonoBehaviour {
     [SerializeField] Entity localEntityPrefab;
     [SerializeField] Entity remoteEntityPrefab;
     [SerializeField] Client client;
+    [SerializeField] Server server;
     [SerializeField] Transform[] initialPositions;
 
     int currentPositionIndex;
@@ -18,7 +19,7 @@ public class WorldSpace : MonoBehaviour {
     {
         var entityPrefab = isLocal ? localEntityPrefab : remoteEntityPrefab;
         var entity = Instantiate(entityPrefab).GetComponent<Entity>();
-        entity.Setup(id, client, ChooseColor(id));
+        entity.Setup(id, client, server, ChooseColor(id));
         entity.transform.SetParent(transform, false);
         entity.transform.position = GetNewEntityPosition();
         return entity;
