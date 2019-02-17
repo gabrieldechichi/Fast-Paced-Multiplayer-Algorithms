@@ -1065,7 +1065,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2406651906e862948a3622c30a179806, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localEntityPrefab: {fileID: 114072918738217666, guid: 1608709f294f7864c8e474eefe8e7329,
+  localEntityPrefab: {fileID: 114072918738217666, guid: 306ee088b93af4846a518d7af92c5b8e,
     type: 2}
   remoteEntityPrefab: {fileID: 114072918738217666, guid: 1608709f294f7864c8e474eefe8e7329,
     type: 2}
